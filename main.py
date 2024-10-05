@@ -1,15 +1,7 @@
 from telegram.ext import Updater, MessageHandler, Filters
 import logging
-from logging.handlers import RotatingFileHandler
 import os
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = RotatingFileHandler('bot.log', maxBytes=5*1024*1024, backupCount=3)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-
-logger.addHandler(handler)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 KEYWORDS = ['casino', 'jackpot', '2000$', '1000$', '500$', '300$', '200$', '100$', 'Казино', 'ставка', 'слоты', 'джекпот', 'kазино']
 
