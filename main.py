@@ -1,22 +1,8 @@
 from telegram.ext import Updater, MessageHandler, Filters
-from flask import Flask, request
 import os
-import threading
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 KEYWORDS = ['casino', 'jackpot', '2000$', '1000$', '500$', '300$', '200$', '100$', 'Казино', 'ставка', 'слоты', 'джекпот', 'kазино']
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Bot is running!", 200
-
-@app.route(f'/{TOKEN}', methods=['POST'])
-def webhook():
-    update = request.get_json()
-    updater.bot.process_new_updates([updater.bot.de_json(update)])
-    return "OK", 200
 
 # Function to delete messages containing keywords
 def delete_casino_messages(update, context):
@@ -32,21 +18,34 @@ def delete_casino_messages(update, context):
 
 PORT = int(os.getenv("PORT", "5000"))
 
-def run_flask():
-    app.run(host='0.0.0.0', port=PORT)
-
 def main():
-    global updater
     updater = Updater(TOKEN, use_context=True)    
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.text | Filters.caption & Filters.chat_type.groups, delete_casino_messages))
 
     if os.getenv("RENDER_EXTERNAL_HOSTNAME"):
         webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}"
-        updater.bot.setWebhook(webhook_url)
+        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN, webhook_url=webhook_url)
+        
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+        
+        class HealthCheckHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path == "/":
+                    self.send_response(200)
+                    self.send_header("Content-type", "text/plain")
+                    self.end_headers()
+                    self.wfile.write(b"Bot is running!")
 
-    flask_thread = threading.Thread(target=run_flask)
-    flask_thread.start()
+        # Start HTTP server for health check
+        httpd = HTTPServer(("0.0.0.0", PORT), HealthCheckHandler)
+        httpd.serve_forever()
+
+    else:
+        # Running locally, use polling
+        updater.start_polling()
+
+    # Keep running the bot
     updater.idle()
 
 if __name__ == '__main__':
