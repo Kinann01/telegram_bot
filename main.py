@@ -1,5 +1,4 @@
 from telegram.ext import Updater, MessageHandler, Filters
-import logging
 import os
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -14,12 +13,17 @@ def delete_casino_messages(update, context):
                 try:
                     update.message.delete()
                 except Exception as e:
-                        pass
+                    pass
+
+PORT = int(os.environ.get("PORT", 5000))
+
 def main():
-    updater = Updater(TOKEN, use_context=True)
+    updater = Updater(TOKEN, use_context=True)    
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.text | Filters.caption & Filters.chat_type.groups, delete_casino_messages))
-    updater.start_polling()
+
+    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+    updater.bot.setWebhook(f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
     updater.idle()
 
 if __name__ == '__main__':
