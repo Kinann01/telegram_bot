@@ -23,25 +23,23 @@ def delete_casino_messages(update, context):
                 except Exception as e:
                     pass
 
-WEBHOOK_PORT = int(os.getenv("PORT", 5000))
-FLASK_PORT = int(os.getenv("FLASK_PORT", 8000))
+PORT = int(os.getenv("PORT", "5000"))
 
 def run_flask():
-    app.run(host='0.0.0.0', port=FLASK_PORT)
+    app.run(host='0.0.0.0', port=PORT)
 
 def main():
     updater = Updater(TOKEN, use_context=True)    
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.text | Filters.caption & Filters.chat_type.groups, delete_casino_messages))
 
-    flask_thread = threading.Thread(target=run_flask)
-    flask_thread.start()
-
     if os.getenv("RENDER_EXTERNAL_HOSTNAME"):
-        updater.start_webhook(listen="0.0.0.0", port=WEBHOOK_PORT, url_path=TOKEN, webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
+        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN, webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
     else:
         updater.start_polling()
 
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
     updater.idle()
 
 if __name__ == '__main__':
