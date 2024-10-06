@@ -1,6 +1,6 @@
 from telegram.ext import Updater, MessageHandler, Filters
+from flask import Flask, request
 import os
-from flask import Flask
 import threading
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -12,6 +12,13 @@ app = Flask(__name__)
 def home():
     return "Bot is running!", 200
 
+@app.route(f'/{TOKEN}', methods=['POST'])
+def webhook():
+    update = request.get_json()
+    updater.bot.process_new_updates([updater.bot.de_json(update)])
+    return "OK", 200
+
+# Function to delete messages containing keywords
 def delete_casino_messages(update, context):
     if update.message is not None:
         message_text = update.message.text or update.message.caption
@@ -29,14 +36,14 @@ def run_flask():
     app.run(host='0.0.0.0', port=PORT)
 
 def main():
+    global updater
     updater = Updater(TOKEN, use_context=True)    
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.text | Filters.caption & Filters.chat_type.groups, delete_casino_messages))
 
     if os.getenv("RENDER_EXTERNAL_HOSTNAME"):
-        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN, webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
-    else:
-        updater.start_polling()
+        webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}"
+        updater.bot.setWebhook(webhook_url)
 
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
