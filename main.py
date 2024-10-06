@@ -12,7 +12,6 @@ app = Flask(__name__)
 def home():
     return "Bot is running!", 200
 
-
 def delete_casino_messages(update, context):
     if update.message is not None:
         message_text = update.message.text or update.message.caption
@@ -26,6 +25,7 @@ def delete_casino_messages(update, context):
 
 WEBHOOK_PORT = int(os.getenv("PORT", 5000))
 FLASK_PORT = int(os.getenv("FLASK_PORT", 8000))
+
 def run_flask():
     app.run(host='0.0.0.0', port=FLASK_PORT)
 
