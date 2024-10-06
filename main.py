@@ -13,10 +13,8 @@ def delete_casino_messages(update, context):
             if any(keyword in message_text for keyword in KEYWORDS):
                 try:
                     update.message.delete()
-                    logger.info(f"Deleted a message from {update.message.from_user.username} due to containing prohibited keywords.")
                 except Exception as e:
-                    logger.error(f"Error deleting message: {str(e)}")
-
+                        pass
 def main():
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
