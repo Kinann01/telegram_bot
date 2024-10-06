@@ -1,7 +1,6 @@
 from telegram.ext import Updater, MessageHandler, Filters
 import os
 
-
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 KEYWORDS = ['casino', 'jackpot', '2000$', '1000$', '500$', '300$', '200$', '100$', 'Казино', 'ставка', 'слоты', 'джекпот', 'kазино']
 
@@ -16,7 +15,7 @@ def delete_casino_messages(update, context):
                 except Exception as e:
                     pass
 
-PORT = int(os.environ.get("PORT", 8443))
+PORT = 443
 
 def main():
     updater = Updater(TOKEN, use_context=True)    
