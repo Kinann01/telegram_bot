@@ -15,7 +15,7 @@ def delete_casino_messages(update, context):
                 except Exception as e:
                     pass
 
-PORT = int(os.environ.get("PORT", 5000))
+PORT = int(os.environ.get("PORT", 8443))
 
 def main():
     updater = Updater(TOKEN, use_context=True)    
