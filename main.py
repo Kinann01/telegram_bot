@@ -15,7 +15,7 @@ def delete_casino_messages(update, context):
                 except Exception as e:
                     pass
 
-PORT = 443
+PORT = int(os.getenv("PORT", 5000))
 
 def main():
     updater = Updater(TOKEN, use_context=True)    
@@ -23,8 +23,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.text | Filters.caption & Filters.chat_type.groups, delete_casino_messages))
 
     if os.getenv("RENDER_EXTERNAL_HOSTNAME"):
-        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
-        updater.bot.setWebhook(f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
+        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN, webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
     else:
         updater.start_polling()
 
